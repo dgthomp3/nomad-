@@ -15,10 +15,11 @@ A multi-modal smart kitchen assistant that integrates voice, gesture, and augmen
 
 ### Quick Start (One Command)
 
-1. Add API keys to `backend/.env`:
+1. Create `backend/.env` file with your API keys:
    ```
    OPENAI_API_KEY=your_openai_api_key
    SPOONACULAR_API_KEY=your_spoonacular_api_key
+   PORT=8080
    ```
 
 2. Start both backend and frontend:
@@ -36,7 +37,12 @@ A multi-modal smart kitchen assistant that integrates voice, gesture, and augmen
 
 **Backend (Go):**
 ```bash
-cd backend && go mod tidy && go run .
+cd backend
+# Create .env file with API keys:
+echo "OPENAI_API_KEY=your_openai_api_key" > .env
+echo "SPOONACULAR_API_KEY=your_spoonacular_api_key" >> .env
+echo "PORT=8080" >> .env
+go mod tidy && go run .
 ```
 
 **Frontend (React Native):**
