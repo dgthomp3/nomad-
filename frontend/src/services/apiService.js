@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.API_BASE_URL || 'http://10.0.0.14:8080/api';
+const API_BASE_URL = process.env.API_BASE_URL || 'http://10.0.0.14:3001/api';
 
 export const sendChatMessage = async (message) => {
   try {
@@ -18,11 +18,14 @@ export const sendChatMessage = async (message) => {
 
 export const searchRecipes = async (query) => {
   try {
+    console.log('Fetching from:', `${API_BASE_URL}/recipes/search?q=${encodeURIComponent(query)}`);
     const response = await fetch(`${API_BASE_URL}/recipes/search?q=${encodeURIComponent(query)}`);
+    console.log('Response status:', response.status);
     const data = await response.json();
     return data.recipes || [];
   } catch (error) {
     console.error('Error searching recipes:', error);
+    console.error('API_BASE_URL:', API_BASE_URL);
     return [];
   }
 };

@@ -37,7 +37,11 @@ export default function CookingScreen({ route }) {
       <Text style={styles.stepText}>{recipe.steps[currentStep]}</Text>
       
       <Timer />
-      <VoiceControl currentStep={currentStep} setCurrentStep={setCurrentStep} />
+      <VoiceControl 
+        currentStep={currentStep} 
+        setCurrentStep={setCurrentStep} 
+        totalSteps={recipe.steps.length}
+      />
       <GestureControl currentStep={currentStep} setCurrentStep={setCurrentStep} />
     </View>
   );

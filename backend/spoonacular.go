@@ -56,7 +56,7 @@ type SpoonacularInstructionsResponse []struct {
 
 func searchSpoonacularRecipes(query string) ([]Recipe, error) {
 	apiKey := os.Getenv("SPOONACULAR_API_KEY")
-	if apiKey == "" {
+	if apiKey == "" || apiKey == "your_spoonacular_api_key" {
 		// Return mock data for development
 		return []Recipe{
 			{ID: 1, Name: "Pasta Carbonara", Time: "20 min", Difficulty: "Medium"},
@@ -101,7 +101,7 @@ func searchSpoonacularRecipes(query string) ([]Recipe, error) {
 
 func getSpoonacularRecipeDetails(id int) (*RecipeDetails, error) {
 	apiKey := os.Getenv("SPOONACULAR_API_KEY")
-	if apiKey == "" {
+	if apiKey == "" || apiKey == "your_spoonacular_api_key" {
 		// Return mock data for development
 		return &RecipeDetails{
 			ID:       id,

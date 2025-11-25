@@ -1,20 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
-import { searchRecipes } from '../services/apiService';
 
 export default function RecipeScreen({ navigation }) {
-  const [recipes, setRecipes] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    loadRecipes();
-  }, []);
-
-  const loadRecipes = async () => {
-    const results = await searchRecipes('pasta');
-    setRecipes(results);
-    setLoading(false);
-  };
+  const [recipes] = useState([
+    { id: 1, name: 'Chicken Teriyaki', time: '30 min', difficulty: 'Easy' },
+    { id: 2, name: 'Beef Stir Fry', time: '25 min', difficulty: 'Medium' }
+  ]);
 
   const renderRecipe = ({ item }) => (
     <TouchableOpacity 
@@ -26,16 +17,9 @@ export default function RecipeScreen({ navigation }) {
     </TouchableOpacity>
   );
 
-  if (loading) {
-    return (
-      <View style={styles.container}>
-        <Text>Loading recipes...</Text>
-      </View>
-    );
-  }
-
   return (
     <View style={styles.container}>
+      <Text style={styles.title}>Recipes</Text>
       <FlatList
         data={recipes}
         renderItem={renderRecipe}
@@ -50,6 +34,11 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     backgroundColor: '#f5f5f5',
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
   },
   recipeCard: {
     backgroundColor: 'white',
