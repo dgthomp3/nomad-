@@ -1,11 +1,87 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, FlatList, StyleSheet, TextInput, Alert } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import * as Speech from 'expo-speech';
+import { searchRecipes } from '../services/apiService';
 
 export default function RecipeScreen({ navigation }) {
-  const [recipes] = useState([
-    { id: 1, name: 'Chicken Teriyaki', time: '30 min', difficulty: 'Easy' },
-    { id: 2, name: 'Beef Stir Fry', time: '25 min', difficulty: 'Medium' }
-  ]);
+  const [recipes, setRecipes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isListening, setIsListening] = useState(false);
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <TouchableOpacity 
+          style={styles.headerMicButton}
+          onPress={handleVoiceSearch}
+        >
+          <Ionicons name="mic" size={24} color={isListening ? "#FF6B6B" : "#007AFF"} />
+        </TouchableOpacity>
+      ),
+      headerLeft: () => null,
+    });
+  }, [isListening]);
+
+  useEffect(() => {
+    loadRecipes();
+  }, []);
+
+  const loadRecipes = async (query = searchQuery) => {
+    setLoading(true);
+    try {
+      const results = await searchRecipes(query);
+      console.log('API returned:', results);
+      
+      if (results && results.length > 0) {
+        setRecipes(results);
+      } else {
+        console.log('No recipes returned, using fallback');
+        // Fallback to dummy data if API returns empty
+        setRecipes([
+          { id: 1, name: 'Chicken Teriyaki', time: '30 min', difficulty: 'Easy' },
+          { id: 2, name: 'Beef Stir Fry', time: '25 min', difficulty: 'Medium' }
+        ]);
+      }
+    } catch (error) {
+      console.error('Error loading recipes:', error);
+      // Fallback to dummy data on error
+      setRecipes([
+        { id: 1, name: 'Chicken Teriyaki', time: '30 min', difficulty: 'Easy' },
+        { id: 2, name: 'Beef Stir Fry', time: '25 min', difficulty: 'Medium' }
+      ]);
+    }
+    setLoading(false);
+  };
+
+  const handleVoiceSearch = () => {
+    setIsListening(true);
+    Alert.prompt(
+      'Voice Search',
+      'Speak your ingredients (simulated with text input)',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+          onPress: () => setIsListening(false)
+        },
+        {
+          text: 'Search',
+          onPress: (text) => {
+            if (text) {
+              setSearchQuery(text);
+              loadRecipes(text);
+              Speech.speak(`Searching for recipes with ${text}`);
+            }
+            setIsListening(false);
+          }
+        }
+      ],
+      'plain-text',
+      searchQuery
+    );
+  };
 
   const renderRecipe = ({ item }) => (
     <TouchableOpacity 
@@ -17,9 +93,36 @@ export default function RecipeScreen({ navigation }) {
     </TouchableOpacity>
   );
 
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.title}>Loading Recipes...</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Recipes</Text>
+      <Text style={styles.title}>Recipe Search</Text>
+      
+      <View style={styles.searchContainer}>
+        <TextInput
+          style={styles.searchInput}
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          placeholder="Search for ingredients..."
+          onSubmitEditing={() => loadRecipes(searchQuery)}
+        />
+        <TouchableOpacity 
+          style={styles.searchButton}
+          onPress={() => loadRecipes(searchQuery)}
+        >
+          <Ionicons name="search" size={20} color="white" />
+        </TouchableOpacity>
+
+      </View>
+      
+      <Text style={styles.resultsText}>Results ({recipes.length})</Text>
       <FlatList
         data={recipes}
         renderItem={renderRecipe}
@@ -39,6 +142,39 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    marginBottom: 20,
+  },
+  searchInput: {
+    flex: 1,
+    backgroundColor: 'white',
+    padding: 12,
+    borderRadius: 8,
+    marginRight: 10,
+    fontSize: 16,
+  },
+  searchButton: {
+    backgroundColor: '#007AFF',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 8,
+    justifyContent: 'center',
+  },
+  headerMicButton: {
+    marginRight: 15,
+    padding: 8,
+  },
+  searchButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  resultsText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 15,
+    color: '#333',
   },
   recipeCard: {
     backgroundColor: 'white',

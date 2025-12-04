@@ -3,8 +3,11 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
+	"net/url"
 	"os"
+	"strings"
 )
 
 type Recipe struct {
@@ -26,23 +29,18 @@ type RecipeDetails struct {
 	Steps       []string `json:"steps"`
 }
 
-type SpoonacularSearchResponse struct {
-	Results []struct {
-		ID                int    `json:"id"`
-		Title             string `json:"title"`
-		ReadyInMinutes    int    `json:"readyInMinutes"`
-		SpoonacularScore  int    `json:"spoonacularScore"`
-		Image             string `json:"image"`
-		Servings          int    `json:"servings"`
-	} `json:"results"`
+type SpoonacularSearchResponse []struct {
+	ID    int    `json:"id"`
+	Title string `json:"title"`
+	Image string `json:"image"`
 }
 
 type SpoonacularRecipeResponse struct {
-	ID                 int    `json:"id"`
-	Title              string `json:"title"`
-	ReadyInMinutes     int    `json:"readyInMinutes"`
-	Servings           int    `json:"servings"`
-	Image              string `json:"image"`
+	ID                  int    `json:"id"`
+	Title               string `json:"title"`
+	ReadyInMinutes      int    `json:"readyInMinutes"`
+	Servings            int    `json:"servings"`
+	Image               string `json:"image"`
 	ExtendedIngredients []struct {
 		Original string `json:"original"`
 	} `json:"extendedIngredients"`
@@ -64,35 +62,43 @@ func searchSpoonacularRecipes(query string) ([]Recipe, error) {
 		}, nil
 	}
 
-	url := fmt.Sprintf("https://api.spoonacular.com/recipes/complexSearch?query=%s&number=12&apiKey=%s&addRecipeInformation=true", query, apiKey)
-	
-	resp, err := http.Get(url)
+	// Format ingredients: convert spaces to commas for ingredient search
+	ingredients := strings.ReplaceAll(strings.TrimSpace(query), " ", ",")
+	apiURL := fmt.Sprintf("https://api.spoonacular.com/recipes/findByIngredients?ingredients=%s&number=10&apiKey=%s", url.QueryEscape(ingredients), apiKey)
+
+	fmt.Printf("DEBUG: Query: %s\n", query)
+	fmt.Printf("DEBUG: API URL: %s\n", apiURL)
+
+	resp, err := http.Get(apiURL)
 	if err != nil {
+		fmt.Printf("DEBUG: HTTP error: %v\n", err)
 		return nil, err
 	}
 	defer resp.Body.Close()
 
+	fmt.Printf("DEBUG: Response status: %s\n", resp.Status)
+
+	if resp.StatusCode != 200 {
+		body, _ := io.ReadAll(resp.Body)
+		fmt.Printf("DEBUG: Error response body: %s\n", string(body))
+		return nil, fmt.Errorf("API error: %s - %s", resp.Status, string(body))
+	}
+
 	var searchResp SpoonacularSearchResponse
 	if err := json.NewDecoder(resp.Body).Decode(&searchResp); err != nil {
+		fmt.Printf("DEBUG: JSON decode error: %v\n", err)
 		return nil, err
 	}
 
-	recipes := make([]Recipe, len(searchResp.Results))
-	for i, r := range searchResp.Results {
-		difficulty := "Hard"
-		if r.SpoonacularScore > 70 {
-			difficulty = "Easy"
-		} else if r.SpoonacularScore > 40 {
-			difficulty = "Medium"
-		}
-
+	fmt.Printf("DEBUG: Found %d recipes\n", len(searchResp))
+	recipes := make([]Recipe, len(searchResp))
+	for i, r := range searchResp {
 		recipes[i] = Recipe{
 			ID:         r.ID,
 			Name:       r.Title,
-			Time:       fmt.Sprintf("%d min", r.ReadyInMinutes),
-			Difficulty: difficulty,
+			Time:       "30 min",
+			Difficulty: "Medium",
 			Image:      r.Image,
-			Servings:   r.Servings,
 		}
 	}
 
@@ -104,10 +110,10 @@ func getSpoonacularRecipeDetails(id int) (*RecipeDetails, error) {
 	if apiKey == "" || apiKey == "your_spoonacular_api_key" {
 		// Return mock data for development
 		return &RecipeDetails{
-			ID:       id,
-			Name:     "Pasta Carbonara",
-			Time:     "20 min",
-			Servings: 4,
+			ID:          id,
+			Name:        "Pasta Carbonara",
+			Time:        "20 min",
+			Servings:    4,
 			Ingredients: []string{"400g spaghetti", "200g pancetta", "4 eggs", "100g Parmesan"},
 			Steps: []string{
 				"Boil water in a large pot",

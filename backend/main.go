@@ -15,6 +15,9 @@ func main() {
 
 	r := gin.Default()
 	
+	// Panic recovery middleware
+	r.Use(gin.Recovery())
+	
 	// CORS middleware
 	r.Use(func(c *gin.Context) {
 		c.Header("Access-Control-Allow-Origin", "*")
