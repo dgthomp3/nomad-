@@ -94,16 +94,17 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#FFF8F0',
   },
   stepNumber: {
     fontSize: 16,
-    color: '#666',
+    color: '#6B6B6B',
     marginBottom: 10,
   },
   stepText: {
     fontSize: 20,
     fontWeight: '500',
     marginBottom: 30,
+    color: '#000000',
   },
 });

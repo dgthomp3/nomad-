@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.API_BASE_URL || 'http://192.168.1.224:3001/api';
+const API_BASE_URL = process.env.API_BASE_URL || 'http://10.0.0.14:3001/api';
 
 export const sendChatMessage = async (message) => {
   try {

@@ -136,12 +136,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#FFF8F0',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
+    color: '#FF6B35',
   },
   searchContainer: {
     flexDirection: 'row',
@@ -156,7 +157,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   searchButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#27AE60',
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 8,
@@ -174,7 +175,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 15,
-    color: '#333',
+    color: '#6B6B6B',
   },
   recipeCard: {
     backgroundColor: 'white',
@@ -189,6 +190,6 @@ const styles = StyleSheet.create({
   },
   recipeInfo: {
     fontSize: 14,
-    color: '#666',
+    color: '#6B6B6B',
   },
 });

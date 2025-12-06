@@ -159,13 +159,13 @@ const styles = StyleSheet.create({
     marginVertical: 20,
   },
   voiceButton: {
-    backgroundColor: '#FF3B30',
+    backgroundColor: '#FF6B35',
     paddingHorizontal: 30,
     paddingVertical: 15,
     borderRadius: 25,
   },
   listening: {
-    backgroundColor: '#FF6B60',
+    backgroundColor: '#27AE60',
   },
   buttonText: {
     color: 'white',
