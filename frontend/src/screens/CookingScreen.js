@@ -5,6 +5,10 @@ import VoiceControl from '../components/VoiceControl';
 import GestureControl from '../components/GestureControl';
 import Timer from '../components/Timer';
 
+/**
+ * CookingScreen - Step-by-step cooking guidance interface
+ * Features: Voice control, timer, gesture navigation, recipe steps
+ */
 export default function CookingScreen({ route }) {
   const [currentStep, setCurrentStep] = useState(0);
   const [recipe, setRecipe] = useState(null);
@@ -17,54 +21,43 @@ export default function CookingScreen({ route }) {
     }
   }, [recipeId]);
 
+  /**
+   * Load recipe details from API with fallback to mock data
+   */
   const loadRecipe = async () => {
     try {
-      console.log('Loading recipe details for ID:', recipeId);
       const recipeData = await getRecipeDetails(recipeId);
       
       if (recipeData && recipeData.steps && recipeData.steps.length > 0) {
-        console.log('Got real recipe data:', recipeData.name);
         setRecipe(recipeData);
       } else {
-        console.log('No recipe data, using fallback');
-        // Fallback to mock recipe
-        setRecipe({
-          id: recipeId,
-          name: 'Chicken Teriyaki',
-          time: '30 min',
-          servings: 4,
-          ingredients: ['2 lbs chicken thighs', '1/4 cup soy sauce', '2 tbsp honey', '1 tbsp ginger', '2 cloves garlic'],
-          steps: [
-            'Cut chicken into bite-sized pieces',
-            'Mix soy sauce, honey, ginger, and garlic in a bowl',
-            'Heat oil in a large pan over medium-high heat',
-            'Add chicken and cook for 5-7 minutes until browned',
-            'Pour sauce over chicken and simmer for 10 minutes',
-            'Serve over rice and garnish with green onions'
-          ]
-        });
+        setRecipe(getMockRecipe());
       }
     } catch (error) {
       console.error('Error loading recipe:', error);
-      // Fallback on error
-      setRecipe({
-        id: recipeId,
-        name: 'Chicken Teriyaki',
-        time: '30 min',
-        servings: 4,
-        ingredients: ['2 lbs chicken thighs', '1/4 cup soy sauce', '2 tbsp honey', '1 tbsp ginger', '2 cloves garlic'],
-        steps: [
-          'Cut chicken into bite-sized pieces',
-          'Mix soy sauce, honey, ginger, and garlic in a bowl',
-          'Heat oil in a large pan over medium-high heat',
-          'Add chicken and cook for 5-7 minutes until browned',
-          'Pour sauce over chicken and simmer for 10 minutes',
-          'Serve over rice and garnish with green onions'
-        ]
-      });
+      setRecipe(getMockRecipe());
     }
     setLoading(false);
   };
+
+  /**
+   * Fallback mock recipe for development and error scenarios
+   */
+  const getMockRecipe = () => ({
+    id: recipeId,
+    name: 'Chicken Teriyaki',
+    time: '30 min',
+    servings: 4,
+    ingredients: ['2 lbs chicken thighs', '1/4 cup soy sauce', '2 tbsp honey', '1 tbsp ginger', '2 cloves garlic'],
+    steps: [
+      'Cut chicken into bite-sized pieces',
+      'Mix soy sauce, honey, ginger, and garlic in a bowl',
+      'Heat oil in a large pan over medium-high heat',
+      'Add chicken and cook for 5-7 minutes until browned',
+      'Pour sauce over chicken and simmer for 10 minutes',
+      'Serve over rice and garnish with green onions'
+    ]
+  });
 
   if (loading || !recipe) {
     return (

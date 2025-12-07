@@ -4,6 +4,10 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Speech from 'expo-speech';
 import { searchRecipes } from '../services/apiService';
 
+/**
+ * RecipeScreen - Ingredient-based recipe search interface
+ * Features: Text search, voice search via header microphone, recipe list
+ */
 export default function RecipeScreen({ navigation }) {
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -28,16 +32,17 @@ export default function RecipeScreen({ navigation }) {
     loadRecipes();
   }, []);
 
+  /**
+   * Load recipes from API with fallback to mock data
+   */
   const loadRecipes = async (query = searchQuery) => {
     setLoading(true);
     try {
       const results = await searchRecipes(query);
-      console.log('API returned:', results);
       
       if (results && results.length > 0) {
         setRecipes(results);
       } else {
-        console.log('No recipes returned, using fallback');
         // Fallback to dummy data if API returns empty
         setRecipes([
           { id: 1, name: 'Chicken Teriyaki', time: '30 min', difficulty: 'Easy' },
@@ -55,6 +60,9 @@ export default function RecipeScreen({ navigation }) {
     setLoading(false);
   };
 
+  /**
+   * Handle voice search input (simulated with text prompt for Expo compatibility)
+   */
   const handleVoiceSearch = () => {
     setIsListening(true);
     Alert.prompt(

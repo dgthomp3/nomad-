@@ -81,9 +81,9 @@ func handleChat(c *gin.Context) {
 	})
 }
 
+// handleRecipeSearch handles ingredient-based recipe search requests
 func handleRecipeSearch(c *gin.Context) {
 	query := c.Query("q")
-	fmt.Printf("DEBUG HANDLER: Received query: %s\n", query)
 	if query == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "query parameter required"})
 		return
@@ -91,12 +91,10 @@ func handleRecipeSearch(c *gin.Context) {
 
 	recipes, err := searchSpoonacularRecipes(query)
 	if err != nil {
-		fmt.Printf("DEBUG HANDLER: Error from searchSpoonacularRecipes: %v\n", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	fmt.Printf("DEBUG HANDLER: Returning %d recipes\n", len(recipes))
 	c.JSON(http.StatusOK, gin.H{"recipes": recipes})
 }
 

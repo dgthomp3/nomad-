@@ -52,52 +52,47 @@ type SpoonacularInstructionsResponse []struct {
 	} `json:"steps"`
 }
 
+// searchSpoonacularRecipes searches for recipes by ingredients using Spoonacular API
 func searchSpoonacularRecipes(query string) ([]Recipe, error) {
 	apiKey := os.Getenv("SPOONACULAR_API_KEY")
 	if apiKey == "" || apiKey == "your_spoonacular_api_key" {
-		// Return mock data for development
+		// Return mock data for development when API key not configured
 		return []Recipe{
 			{ID: 1, Name: "Pasta Carbonara", Time: "20 min", Difficulty: "Medium"},
 			{ID: 2, Name: "Chicken Stir Fry", Time: "15 min", Difficulty: "Easy"},
 		}, nil
 	}
 
-	// Format ingredients: convert spaces to commas for ingredient search
+	// Format ingredients: convert spaces to commas for ingredient-based search
 	ingredients := strings.ReplaceAll(strings.TrimSpace(query), " ", ",")
 	apiURL := fmt.Sprintf("https://api.spoonacular.com/recipes/findByIngredients?ingredients=%s&number=10&apiKey=%s", url.QueryEscape(ingredients), apiKey)
 
-	fmt.Printf("DEBUG: Query: %s\n", query)
-	fmt.Printf("DEBUG: API URL: %s\n", apiURL)
-
 	resp, err := http.Get(apiURL)
 	if err != nil {
-		fmt.Printf("DEBUG: HTTP error: %v\n", err)
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	fmt.Printf("DEBUG: Response status: %s\n", resp.Status)
-
+	// Check for API errors
 	if resp.StatusCode != 200 {
 		body, _ := io.ReadAll(resp.Body)
-		fmt.Printf("DEBUG: Error response body: %s\n", string(body))
 		return nil, fmt.Errorf("API error: %s - %s", resp.Status, string(body))
 	}
 
+	// Parse JSON response
 	var searchResp SpoonacularSearchResponse
 	if err := json.NewDecoder(resp.Body).Decode(&searchResp); err != nil {
-		fmt.Printf("DEBUG: JSON decode error: %v\n", err)
 		return nil, err
 	}
 
-	fmt.Printf("DEBUG: Found %d recipes\n", len(searchResp))
+	// Convert to internal Recipe format
 	recipes := make([]Recipe, len(searchResp))
 	for i, r := range searchResp {
 		recipes[i] = Recipe{
 			ID:         r.ID,
 			Name:       r.Title,
-			Time:       "30 min",
-			Difficulty: "Medium",
+			Time:       "30 min", // Default time since findByIngredients doesn't provide it
+			Difficulty: "Medium", // Default difficulty
 			Image:      r.Image,
 		}
 	}
